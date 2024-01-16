@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ProyMoviles</string>
+    <string name="title_activity_client_map">client_map</string>
+    <string name="title_activity_client_main">client_main</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="title_activity_employ_main">employ_main</string>
+    <string name="title_activity_maps">MapsActivity</string>
+</resources>

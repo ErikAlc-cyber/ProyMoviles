@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/item_number2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_margin"
+        android:layout_weight="1"
+        android:textAlignment="textStart"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textColor="@color/peach" />
+
+    <TextView
+        android:id="@+id/state3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_margin"
+        android:layout_weight="1"
+        android:textAlignment="textStart"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textColor="@color/peach" />
+
+    <Button
+        android:id="@+id/button3"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:backgroundTint="@color/light_green"
+        android:text="Terminar"
+        android:textAlignment="center"
+        android:textColor="@color/red"
+        app:iconTint="@color/green" />
+</LinearLayout>
