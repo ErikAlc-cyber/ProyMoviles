@@ -10,7 +10,7 @@ db_config = {
     'host': 'localhost',
     'port': 3306,
     'user': 'root',
-    'password': '',
+    'password': '030217',
     'database': 'proyecto_mobiles'
 }
 
@@ -167,53 +167,6 @@ class MiHandler(http.server.SimpleHTTPRequestHandler):
                 # Convertir los valores Decimal a float en cada resultado
                 for resultado in resultados:
                     # Convertir latitud y longitud a float si existen, de lo contrario, establecer en None
-                    resultado['latitud'] = float(resultado['latitud']) if resultado['latitud'] is not None else 0
-                    resultado['longitud'] = float(resultado['longitud']) if resultado['longitud'] is not None else 0
-                    # Convertir latitud y longitud a float si existen, de lo contrario, establecer en None
-                    resultado['latitudC'] = float(resultado['latitudC']) if resultado['latitudC'] is not None else 0
-                    resultado['longitudC'] = float(resultado['longitudC']) if resultado['longitudC'] is not None else 0
-
-                # Cerrar cursor y conexión
-                cursor.close()
-                conexion.close()
-
-                # Enviar respuesta con la información de los pedidos
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps(resultados).encode('utf-8'))
-
-            except (ValueError, mysql.connector.Error) as err:
-                # Enviar mensaje de error si hay un problema con los datos o la base de datos
-                self.send_response(500)
-                self.send_header('Content-type', 'text/plain')
-                self.end_headers()
-                self.wfile.write(f"Error al obtener la historia de pedidos: {err}".encode('utf-8'))
-
-        elif self.path.startswith('/historia_repartidor/'):
-            try:
-                # Obtener el ID del usuario de la URL
-                id_usuario = int(self.path.split('/')[2])
-
-                # Conexión a la base de datos
-                conexion = mysql.connector.connect(**db_config)
-
-                # Crear un cursor para ejecutar consultas SQL
-                cursor = conexion.cursor(dictionary=True)
-
-                # Ejecutar consulta para obtener la información de todos los pedidos asociados al usuario
-                cursor.execute("""
-                    SELECT *
-                    FROM pedidos
-                    WHERE id_repartidor = %s;
-                """, (id_usuario,))
-
-                # Obtener todos los resultados
-                resultados = cursor.fetchall()
-
-                # Convertir los valores Decimal a float en cada resultado
-                for resultado in resultados:
-                    # Convertir latitud y longitud a float si existen, de lo contrario, establecer en None
                     resultado['latitud'] = float(resultado['latitud']) if resultado['latitud'] is not None else None
                     resultado['longitud'] = float(resultado['longitud']) if resultado['longitud'] is not None else None
                     # Convertir latitud y longitud a float si existen, de lo contrario, establecer en None
@@ -284,7 +237,7 @@ class MiHandler(http.server.SimpleHTTPRequestHandler):
                 cursor = conexion.cursor()
 
                 # Ejecutar consulta para actualizar el repartidor del pedido
-                cursor.execute("UPDATE pedidos SET id_repartidor = %s, Estado = 'activo' WHERE id_pedido = %s",
+                cursor.execute("UPDATE pedidos SET id_repartidor = %s WHERE id_pedido = %s",
                                (idrepartidor, idpedido))
 
                 # Confirmar la transacción
@@ -298,7 +251,7 @@ class MiHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/plain')
                 self.end_headers()
-                self.wfile.write(b'ok')
+                self.wfile.write(b'Repartidor del pedido actualizado correctamente')
 
             except (ValueError, mysql.connector.Error) as err:
                 # Enviar mensaje de error si hay un problema con los datos o la base de datos
@@ -440,6 +393,42 @@ class MiHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-type', 'text/plain')
                 self.end_headers()
                 self.wfile.write(f"Error de conexión a la base de datos: {err}".encode('utf-8'))
+        elif self.path.startswith('/eliminar_pedido/'):
+            pedido_id = int(self.path.split('/')[-1])
+            try:
+                # Conexión a la base de datos
+                conexion = mysql.connector.connect(**db_config)
+                # Crear un cursor para ejecutar consultas SQL
+                cursor = conexion.cursor()
+
+                # Iniciar una transacción
+                cursor.execute("START TRANSACTION")
+
+                # Eliminar detalles del pedido
+                cursor.execute("DELETE FROM detalles_pedido WHERE id_pedido = %s", (pedido_id,))
+
+                # Eliminar el pedido
+                cursor.execute("DELETE FROM pedidos WHERE id_pedido = %s", (pedido_id,))
+
+                # Confirmar la transacción y cerrar cursor y conexión
+                cursor.execute("COMMIT")
+                cursor.close()
+                conexion.close()
+
+                # Enviar respuesta exitosa
+                self.send_response(200)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(b'ok')
+
+            except mysql.connector.Error as err:
+                # Realizar un rollback en caso de error
+                cursor.execute("ROLLBACK")
+                # Enviar mensaje de error si hay un problema con la base de datos
+                self.send_response(500)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(f"Error al eliminar el pedido: {err}".encode('utf-8'))
         else:
             # Utilizar el manejador original para otras rutas DELETE
             super().do_DELETE()
@@ -727,7 +716,7 @@ class MiHandler(http.server.SimpleHTTPRequestHandler):
                 cursor = conexion.cursor()
 
                 # Ejecutar consulta para insertar un nuevo pedido
-                cursor.execute("INSERT INTO pedidos (id_usuario, id_repartidor, latitud, longitud, Estado ,latitudC, longitudC) VALUES (%s, %s, 0, 0,'abierto', 0, 0)",
+                cursor.execute("INSERT INTO pedidos (id_usuario, id_repartidor,Estado) VALUES (%s, %s, 'abierto')",
                                (idusuario, idrepartidor))
 
                 # Obtener el ID del nuevo pedido
@@ -750,7 +739,7 @@ class MiHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_response(201)
                 self.send_header('Content-type', 'text/plain')
                 self.end_headers()
-                self.wfile.write(f'{nuevo_pedido_id}'.encode('utf-8'))
+                self.wfile.write(f'Pedido creado correctamente. ID: {nuevo_pedido_id}'.encode('utf-8'))
 
             except (ValueError, mysql.connector.Error) as err:
                 # Enviar mensaje de error si hay un problema con los datos o la base de datos
