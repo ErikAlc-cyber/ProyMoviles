@@ -39,7 +39,11 @@ python -u "Direccion\a\ApiMaster.py"
     
 ## Bugs Conocidos
 
-- Al iniciar sesion como cliente puede que aparezca el siguiente mensaje: ![Error: No inicializa Catalogo](/ruta/a/la/imagen.jpg) Se debe salir y volver a entrar de la app, puede mostrar el mensaje varias veces
+- Al iniciar sesion como cliente puede que aparezca el siguiente mensaje:
+
+  ![Error: No inicializa Catalogo](https://github.com/ErikAlc-cyber/ProyMoviles/blob/master/Imagen_error.jpg?raw=true#alignleft)
+  
+  Se debe salir y volver a entrar de la app, puede mostrar el mensaje varias veces
 
 - Las pantallas no se actualizan dinamicamente, se debe de forzar la recarga de la misma, se puede hacer cerrando e iniciando sesion.
 
