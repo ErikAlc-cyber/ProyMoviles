@@ -189,6 +189,53 @@ class MiHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-type', 'text/plain')
                 self.end_headers()
                 self.wfile.write(f"Error al obtener la historia de pedidos: {err}".encode('utf-8'))
+                
+        elif self.path.startswith('/historia_repartidor/'):
+            try:
+                # Obtener el ID del usuario de la URL
+                id_usuario = int(self.path.split('/')[2])
+
+                # Conexión a la base de datos
+                conexion = mysql.connector.connect(**db_config)
+
+                # Crear un cursor para ejecutar consultas SQL
+                cursor = conexion.cursor(dictionary=True)
+
+                # Ejecutar consulta para obtener la información de todos los pedidos asociados al usuario
+                cursor.execute("""
+                    SELECT *
+                    FROM pedidos
+                    WHERE id_repartidor = %s;
+                """, (id_usuario,))
+
+                # Obtener todos los resultados
+                resultados = cursor.fetchall()
+
+                # Convertir los valores Decimal a float en cada resultado
+                for resultado in resultados:
+                    # Convertir latitud y longitud a float si existen, de lo contrario, establecer en None
+                    resultado['latitud'] = float(resultado['latitud']) if resultado['latitud'] is not None else None
+                    resultado['longitud'] = float(resultado['longitud']) if resultado['longitud'] is not None else None
+                    # Convertir latitud y longitud a float si existen, de lo contrario, establecer en None
+                    resultado['latitudC'] = float(resultado['latitudC']) if resultado['latitudC'] is not None else None
+                    resultado['longitudC'] = float(resultado['longitudC']) if resultado['longitudC'] is not None else None
+
+                # Cerrar cursor y conexión
+                cursor.close()
+                conexion.close()
+
+                # Enviar respuesta con la información de los pedidos
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps(resultados).encode('utf-8'))
+
+            except (ValueError, mysql.connector.Error) as err:
+                # Enviar mensaje de error si hay un problema con los datos o la base de datos
+                self.send_response(500)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(f"Error al obtener la historia de pedidos: {err}".encode('utf-8'))
 
         else:
             # Utilizar el manejador original para otras rutas
@@ -716,7 +763,7 @@ class MiHandler(http.server.SimpleHTTPRequestHandler):
                 cursor = conexion.cursor()
 
                 # Ejecutar consulta para insertar un nuevo pedido
-                cursor.execute("INSERT INTO pedidos (id_usuario, id_repartidor,Estado) VALUES (%s, %s, 'abierto')",
+                cursor.execute("INSERT INTO pedidos (id_usuario, id_repartidor,latitud,longitud,Estado,latitudC,longitudC) VALUES (%s, %s, 0, 0, 'abierto', 0, 0)",
                                (idusuario, idrepartidor))
 
                 # Obtener el ID del nuevo pedido
@@ -739,7 +786,7 @@ class MiHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_response(201)
                 self.send_header('Content-type', 'text/plain')
                 self.end_headers()
-                self.wfile.write(f'Pedido creado correctamente. ID: {nuevo_pedido_id}'.encode('utf-8'))
+                self.wfile.write(f'{nuevo_pedido_id}'.encode('utf-8'))
 
             except (ValueError, mysql.connector.Error) as err:
                 # Enviar mensaje de error si hay un problema con los datos o la base de datos
