@@ -32,7 +32,7 @@ pip install mysql-connector-python flask
 ```
 python -u "Direccion\a\ApiMaster.py"
 ```
-5. Importar la aplicacion a Android studio. Puede hacerlo manualmente o siguiendo este [tutorial](https://stackoverflow.com/questions/25348339/how-to-import-an-existing-project-from-github-into-android-studio)
+5. Importar la aplicacion desde el [repositorio correspondiente](https://github.com/ErikAlc-cyber/AppProyMovil) a Android studio. Puede hacerlo manualmente o siguiendo este [tutorial](https://stackoverflow.com/questions/25348339/how-to-import-an-existing-project-from-github-into-android-studio)
 6. Ejecutar la aplicacion
 
 **Nota: Se espera que todo se ejecute en localhost, y la app esta diseñada para esto** 
