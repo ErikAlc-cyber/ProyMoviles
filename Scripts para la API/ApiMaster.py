@@ -10,7 +10,7 @@ db_config = {
     'host': 'localhost',
     'port': 3306,
     'user': 'root',
-    'password': '030217',
+    'password': '',
     'database': 'proyecto_mobiles'
 }
 
@@ -333,7 +333,7 @@ class MiHandler(http.server.SimpleHTTPRequestHandler):
                 cursor = conexion.cursor()
 
                 # Ejecutar consulta para actualizar el estado del pedido a "activo"
-                cursor.execute("UPDATE pedidos SET Estado = 'Abierto' WHERE id_pedido = %s", (id_pedido,))
+                cursor.execute("UPDATE pedidos SET Estado = 'Abierto', id_repartidor = 1 WHERE id_pedido = %s", (id_pedido,))
 
                 # Confirmar la transacción y cerrar cursor y conexión
                 conexion.commit()
