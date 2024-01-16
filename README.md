@@ -1,4 +1,4 @@
-#Proyecto Final: App para cafeteria
+# Proyecto Final: App para cafeteria
 
 Proyecto final para la clase de Aplicaciones Moviles de ESCOM (ISC-2020) con el profesor Ulises Saldaña.
 
